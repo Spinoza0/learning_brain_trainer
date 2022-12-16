@@ -5,9 +5,9 @@ import java.util.ArrayList;
 public class Exercise {
     private static final int min = 5;
     private static final int max = 30;
-    private ArrayList<Integer> answers = new ArrayList<>();
-    private int rightAnswer;
-    private String question;
+    private final ArrayList<Integer> answers = new ArrayList<>();
+    private final int rightAnswer;
+    private final String question;
 
 
     public Exercise() {

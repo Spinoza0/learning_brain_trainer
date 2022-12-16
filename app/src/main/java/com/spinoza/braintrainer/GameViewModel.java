@@ -15,13 +15,13 @@ public class GameViewModel extends AndroidViewModel {
     private static final String KEY_MAXIMUM_RESULT = "record";
     private static final int GAME_DURATION = 10000;
 
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
 
-    private MutableLiveData<Score> score = new MutableLiveData<>();
-    private MutableLiveData<Exercise> exercise = new MutableLiveData<>();
-    private MutableLiveData<Integer> timer = new MutableLiveData<>();
-    private MutableLiveData<Boolean> gameResult = new MutableLiveData<>();
-    private MutableLiveData<Boolean> gameOver = new MutableLiveData<>();
+    private final MutableLiveData<Score> score = new MutableLiveData<>();
+    private final MutableLiveData<Exercise> exercise = new MutableLiveData<>();
+    private final MutableLiveData<Integer> timer = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> gameResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> gameOver = new MutableLiveData<>();
 
 
     public LiveData<Score> getScore() {
@@ -52,7 +52,7 @@ public class GameViewModel extends AndroidViewModel {
     }
 
     public int getCurrentScore() {
-        return score.getValue().getCountOfRightAnswers();
+        return score.getValue() != null ? score.getValue().getCountOfRightAnswers() : 0;
     }
 
     public int getMaxScore() {
@@ -67,12 +67,16 @@ public class GameViewModel extends AndroidViewModel {
     }
 
     public void win() {
-        score.getValue().increaseQuestions(true);
+        if (score.getValue() != null) {
+            score.getValue().increaseQuestions(true);
+        }
         score.setValue(score.getValue());
     }
 
     public void lose() {
-        score.getValue().increaseQuestions(false);
+        if (score.getValue() != null) {
+            score.getValue().increaseQuestions(false);
+        }
         score.setValue(score.getValue());
     }
 
@@ -100,7 +104,7 @@ public class GameViewModel extends AndroidViewModel {
     public void checkOpinion(String opinion) {
         try {
             int answer = Integer.parseInt(opinion);
-            if (exercise.getValue().checkOpinion(answer)) {
+            if (exercise.getValue()!=null && exercise.getValue().checkOpinion(answer)) {
                 gameResult.setValue(true);
             } else
                 gameResult.setValue(false);
@@ -110,7 +114,7 @@ public class GameViewModel extends AndroidViewModel {
         }
     }
 
-    public class Score {
+    public static class Score {
         private int countOfRightAnswers;
         private int countOfQuestions;
 

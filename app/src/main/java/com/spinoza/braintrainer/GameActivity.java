@@ -8,8 +8,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
+import java.util.Locale;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -44,63 +45,40 @@ public class GameActivity extends AppCompatActivity {
 
 
     private void setObservers() {
-        viewModel.getTimer().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                textViewTimer.setText(integer.toString());
-                int colorResId;
-                if (integer > 5) {
-                    colorResId = android.R.color.holo_green_dark;
-                } else {
-                    colorResId = android.R.color.holo_red_dark;
-                }
-                textViewTimer.setTextColor(getResources().getColor(colorResId));
+        viewModel.getTimer().observe(this, integer -> {
+            textViewTimer.setText(String.format(Locale.getDefault(), "%d", integer));
+            int colorResId;
+            if (integer > 5) {
+                colorResId = android.R.color.holo_green_dark;
+            } else {
+                colorResId = android.R.color.holo_red_dark;
+            }
+            textViewTimer.setTextColor(getResources().getColor(colorResId));
+        });
+        viewModel.getExercise().observe(this, exercise -> {
+            textViewVersion1.setText(exercise.getAnswer1());
+            textViewVersion2.setText(exercise.getAnswer2());
+            textViewVersion3.setText(exercise.getAnswer3());
+            textViewVersion4.setText(exercise.getAnswer4());
+            textViewQuestion.setText(exercise.getQuestion());
+        });
+        viewModel.getScore().observe(this, score -> textViewScore.setText(score.toString()));
+        viewModel.getGameResult().observe(this, gameResult -> {
+            if (gameResult) {
+                Toast.makeText(GameActivity.this, R.string.win, Toast.LENGTH_SHORT).show();
+                viewModel.win();
+            } else {
+                Toast.makeText(GameActivity.this, R.string.lose, Toast.LENGTH_SHORT).show();
+                viewModel.lose();
             }
         });
-        viewModel.getExercise().observe(this, new Observer<Exercise>() {
-            @Override
-            public void onChanged(Exercise exercise) {
-                textViewVersion1.setText(exercise.getAnswer1());
-                textViewVersion2.setText(exercise.getAnswer2());
-                textViewVersion3.setText(exercise.getAnswer3());
-                textViewVersion4.setText(exercise.getAnswer4());
-                textViewQuestion.setText(exercise.getQuestion());
-            }
-        });
-        viewModel.getScore().observe(this, new Observer<GameViewModel.Score>() {
-            @Override
-            public void onChanged(GameViewModel.Score score) {
-                textViewScore.setText(score.toString());
-            }
-        });
-        viewModel.getGameResult().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean gameResult) {
-                if (gameResult) {
-                    Toast.makeText(
-                            GameActivity.this,
-                            R.string.win,
-                            Toast.LENGTH_SHORT).show();
-                    viewModel.win();
-                } else {
-                    Toast.makeText(
-                            GameActivity.this,
-                            R.string.lose,
-                            Toast.LENGTH_SHORT).show();
-                    viewModel.lose();
-                }
-            }
-        });
-        viewModel.getGameOver().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean gameOver) {
-                if (gameOver) {
-                    int max = viewModel.getMaxScore();
-                    int current = viewModel.getCurrentScore();
-                    viewModel.saveMaxScore(current, max);
-                    startActivity(ScoreActivity.newIntent(GameActivity.this, current, max));
-                    finish();
-                }
+        viewModel.getGameOver().observe(this, gameOver -> {
+            if (gameOver) {
+                int max = viewModel.getMaxScore();
+                int current = viewModel.getCurrentScore();
+                viewModel.saveMaxScore(current, max);
+                startActivity(ScoreActivity.newIntent(GameActivity.this, current, max));
+                finish();
             }
         });
     }
